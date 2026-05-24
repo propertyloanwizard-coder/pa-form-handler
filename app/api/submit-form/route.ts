@@ -18,13 +18,13 @@ async function parsePayload(req: NextRequest): Promise<Partial<FormPayload>> {
   }
 
   const formData = await req.formData();
-  const data: Partial<FormPayload> = {};
-  for (const [key, value] of formData.entries()) {
+  const data: Record<string, string> = {};
+  formData.forEach((value, key) => {
     if (typeof value === 'string') {
-      (data as Record<string, string>)[key] = value;
+      data[key] = value;
     }
-  }
-  return data;
+  });
+  return data as Partial<FormPayload>;
 }
 
 async function sendEmail(params: {
@@ -120,8 +120,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    return NextResponse.json({ ok: false, error: msg }, { status: 500 });
   }
 }
 
